@@ -1,0 +1,141 @@
+{
+    "testName": "testModel",
+    "parameters": [
+        {
+            "name": "$username",
+            "type": "String",
+            "value": "rzb001"
+        },
+        {
+            "name": "$password",
+            "type": "String",
+            "value": "rzb001"
+        },
+        {
+            "name": "$sessionID",
+            "type": "String",
+            "enable": "step2",
+            "value": ""
+        },
+        {
+            "name": "$email",
+            "type": "String",
+            "value": "\"water@163.com\""
+        },
+        {
+            "name": "$loginName",
+            "type": "String",
+            "value": "\"water@163.com\""
+        }
+    ],
+    "steps": [
+        {
+            "description": "163",
+            "url": "http://gc.ditu.aliyun.com/geocoding",
+            "protocol": "http",
+            "method": "get",
+            "header": {
+                "test": "$email",
+                "model": "model"
+            },
+            "authorization": {
+                "authorType": "basic",
+                "key": "$username",
+                "value": "$password"
+            },
+            "parameters": {
+                "a": "beijing"
+            },
+            "delay": 3000
+        },
+        {
+            "description": "hrms",
+            "url": "http://115.28.39.183/login/check.do",
+            "protocol": "http",
+            "method": "post",
+            "delay": 1000,
+            "authorization": {},
+            "parameters": {
+                "userName": "rzb001",
+                "passWord": "rzb001"
+            },
+            "cookieSave": "YES"
+        },
+        {
+            "description": "login",
+            "url": "http://115.28.39.183/login/login.do",
+            "protocol": "http",
+            "method": "get",
+            "header": {
+                "host": "115.28.39.183",
+                "User-Agent": "cloudwise v1.0 rewrite"
+            },
+            "authorization?": {
+                "authorType": "basic",
+                "key": "inner",
+                "value": "outer"
+            },
+            "cookieSet": "YES",
+            "postProcessors": [
+                {
+                    "type": "RegexExtractor",
+                    "field": "body",
+                    "refname": "$loginName",
+                    "regex": ".+?>(.+?),你好+?",
+                    "regexNum": "1"
+                },
+                {
+                    "type": "assertions",
+                    "assertions": [
+                        {
+                            "type": "ResponseAssertion",
+                            "field": "responseheader/responsebody",
+                            "mode": "contain/equals",
+                            "param1": "has"
+                        },
+                        {
+                            "type": "ResponseAssertion",
+                            "field": "responseheader/responsebody",
+                            "mode": "count",
+                            "count": "5",
+                            "compareType": "=/!=/</>/<=/>=",
+                            "param1": "some"
+                        },
+                        {
+                            "type": "durationAssertion",
+                            "field": "mainSample/subSample/all",
+                            "durationTime": "1000"
+                        },
+                        {
+                            "type": "sizeAssertion",
+                            "field": "response",
+                            "size": "1000",
+                            "mode": "="
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "description": "department",
+            "url": "http://115.28.39.183/department/myDepartment.do",
+            "protocol": "http",
+            "method": "get",
+	    "parameters": {
+                
+            },
+            "header": {
+                "host": "115.28.39.183",
+                "User-Agent": "cloudwisev1.0rewrite",
+				"loginName": "$loginName"
+            },
+            "authorization?": {
+                "authorType": "basic",
+                "key": "inner",
+                "value": "outer"
+            },
+            "cookieSet": "YES",
+            "assertion": {}
+        }
+    ]
+}
